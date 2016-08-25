@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"html"
 	"log"
 	"net/http"
 
@@ -11,7 +9,6 @@ import (
 
 func main() {
 	r := mux.NewRouter().StrictSlash(true)
-	r.HandleFunc("/", Index)
 
 	// Get list of all chats
 	r.HandleFunc("/chats/", handleChats).Methods("GET")
@@ -20,20 +17,9 @@ func main() {
 	r.HandleFunc("/chats/{id}/", handleGetChat).Methods("GET")
 
 	// Get IDs of messages in channel
-	r.HandleFunc("/chats/{chatID}/msgs/", handleGetMsgs).Method("GET")
+	r.HandleFunc("/chats/{chatID}/msgs/", handleGetMsgs).Methods("GET")
 	// Post a new message to a channel
-	r.HandleFunc("/chats/{chatID}/msgs/" handlePostMsg).Method("POST")
-
-
+	r.HandleFunc("/chats/{chatID}/msgs/", handlePostMsg).Methods("POST")
 
 	log.Fatal(http.ListenAndServe(":8080", r))
-}
-
-// Index TODO: Fix text
-func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
-}
-
-func handleChats(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "This will return a list over all chats")
 }
