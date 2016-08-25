@@ -2,20 +2,25 @@ package main
 
 import (
 	"fmt"
-	"html"
-	"log"
 	"net/http"
-
-	"github.com/gorilla/mux"
 )
 
-func main() {
-	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/", Index)
-	log.Fatal(http.ListenAndServe(":8080", router))
+func handleChats(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8") // normal header
+	fmt.Fprintln(w, "This should return a list of all the chats available")
 }
 
-// Index TODO: Fix text
-func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
+func handleGetChat(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+	// Get details for specific chat
+}
+
+func handleGetMsgs(w http.ResponseWriter, r *http.Request) {
+	// Get IDs of messages in channel
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+func handlePostMsg(w http.ResponseWriter, r *http.Request) {
+	// Post a new message to a channel
+	w.WriteHeader(http.StatusNotImplemented)
 }
