@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+	go printRunTime()
 	r := mux.NewRouter().StrictSlash(true)
 
 	// Get list of all chats
