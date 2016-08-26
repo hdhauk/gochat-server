@@ -12,13 +12,12 @@ type Message struct {
 	DeletedAt time.Time
 
 	SenderID string
-	Tags     []string
 	Priority int
 	Text     string // NOTE: Needs to be able to be arbitrary large
-	Pos      Position
+	//Pos      Position
 }
 
-// Users -
+// User ...
 type User struct {
 	ID string
 
@@ -28,6 +27,7 @@ type User struct {
 	Nick string
 }
 
+// Position ...
 type Position struct {
 	Lat   float32
 	Lon   float32

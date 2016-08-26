@@ -3,10 +3,32 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	jwt "github.com/dgrijalva/jwt-go"
 )
 
+func handleAuth(w http.ResponseWriter, r *http.Request) {
+	// Check if credentials is in database
+
+	// Create JWT and add to DB
+
+	// Return JWT to user
+	mySigningKey := []byte("AllYourBase")
+
+	// Create the Claims
+	claims := &jwt.StandardClaims{
+		ExpiresAt: 15000,
+		Issuer:    "test",
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	ss, err := token.SignedString(mySigningKey)
+	fmt.Printf("%v %v\n", ss, err)
+}
+
 func handleChats(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8") // normal header
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	fmt.Println(r)
 	fmt.Fprintln(w, "This should return a list of all the chats available")
 }
 

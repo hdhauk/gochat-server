@@ -12,9 +12,9 @@ type Chat struct {
 	UpdatedAt time.Time
 
 	// Fields set by the users
-	Name    string
-	Descr   string
-	Owner   User
-	Members []User
-	Clk     int
+	Name  string
+	Descr string
+	Owner User
+	//MemberIDs []string // <- FIXME: Sqlite3 cannot handle slices
+	Clk int
 }
