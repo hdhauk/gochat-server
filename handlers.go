@@ -23,7 +23,7 @@ func (c *credentials) IsValid() bool {
 	return c.Username != "" && c.Password != ""
 }
 
-func handleAuth(w http.ResponseWriter, r *http.Request) {
+func handleLogin(w http.ResponseWriter, r *http.Request) {
 	// Pick off username and password from request body
 	decoder := json.NewDecoder(r.Body)
 	var cred credentials
@@ -53,11 +53,18 @@ func handleAuth(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(ss)
 	// Add JWT to store in memory
 
 	// Return JWT to user
 	w.Write([]byte(ss))
+}
+func handleGetUsers(w http.ResponseWriter, r *http.Request) {
+	//encoder := json.NewEncoder(w)
+	json, err := json.Marshal(users)
+	if err != nil {
+		fmt.Println("Error marhsalling JSON")
+	}
+	w.Write(json)
 }
 
 func handleChats(w http.ResponseWriter, r *http.Request) {

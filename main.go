@@ -41,7 +41,8 @@ func main() {
 	//	Authentication Controller
 	//----------------------------------------------------------------------------
 	// Check credentials and return JWT if they check out
-	r.HandleFunc("/users/", handleAuth).Methods("POST")
+	r.HandleFunc("/users/", handleLogin).Methods("POST")
+	r.HandleFunc("/users/", handleGetUsers).Methods("GET")
 
 	//	Chats Controller
 	//----------------------------------------------------------------------------
