@@ -38,13 +38,11 @@ func main() {
 	// Set up muxing
 	r := mux.NewRouter().StrictSlash(false)
 
-	//----------------------------------------------------------------------------
 	//	Authentication Controller
 	//----------------------------------------------------------------------------
 	// Check credentials and return JWT if they check out
 	r.HandleFunc("/users/", handleAuth).Methods("POST")
 
-	//----------------------------------------------------------------------------
 	//	Chats Controller
 	//----------------------------------------------------------------------------
 	// Get list of all chats
@@ -53,7 +51,6 @@ func main() {
 	// Get details for specific chat
 	r.HandleFunc("/chats/{id}/", handleGetChat).Methods("GET")
 
-	//----------------------------------------------------------------------------
 	//	Message Controller
 	//----------------------------------------------------------------------------
 	// Get IDs of messages in channel
