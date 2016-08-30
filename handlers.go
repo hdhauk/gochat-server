@@ -59,18 +59,20 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(ss))
 }
 func handleGetUsers(w http.ResponseWriter, r *http.Request) {
-	//encoder := json.NewEncoder(w)
-	json, err := json.Marshal(users)
+	json, err := json.Marshal(users) // TODO: Fetch data from DB instead
 	if err != nil {
 		fmt.Println("Error marhsalling JSON")
 	}
 	w.Write(json)
 }
 
-func handleChats(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	fmt.Println(r)
-	fmt.Fprintln(w, "This should return a list of all the chats available")
+func handleGetChats(w http.ResponseWriter, r *http.Request) {
+	json, err := json.Marshal(chats) // TODO: Fetch data from DB instead
+	if err != nil {
+		fmt.Println("Error marhsalling JSON")
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(json)
 }
 
 func handleGetChat(w http.ResponseWriter, r *http.Request) {

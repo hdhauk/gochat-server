@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
@@ -47,7 +49,7 @@ func main() {
 	//	Chats Controller
 	//----------------------------------------------------------------------------
 	// Get list of all chats
-	r.HandleFunc("/chats/", handleChats).Methods("GET")
+	r.HandleFunc("/chats/", handleGetChats).Methods("GET")
 
 	// Get details for specific chat
 	r.HandleFunc("/chats/{id}/", handleGetChat).Methods("GET")
@@ -59,5 +61,5 @@ func main() {
 	// Post a new message to a channel
 	r.HandleFunc("/chats/{chatID}/msgs/", handlePostMsg).Methods("POST")
 
-	log.Fatal(http.ListenAndServe(":8080", r))
+	log.Fatal(http.ListenAndServe(":8080", handlers.LoggingHandler(os.Stdout, r)))
 }
