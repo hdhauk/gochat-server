@@ -6,11 +6,15 @@ import (
 	"net/http"
 	"os"
 
+	jwtmiddleware "github.com/auth0/go-jwt-middleware"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
+
+var myKey = []byte("Password123")
 
 func main() {
 	// Print welcome message and runtime
@@ -40,26 +44,38 @@ func main() {
 	// Set up muxing
 	r := mux.NewRouter().StrictSlash(false)
 
+	// Set up JWT Middleware
+	jwtMiddleware := jwtmiddleware.New(
+		jwtmiddleware.Options{
+			ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
+				return myKey, nil
+			},
+			SigningMethod: jwt.SigningMethodHS512,
+			Debug:         true,
+		})
+
+	//app := jwtMiddleware.Handler()
+
 	//	Authentication Controller
 	//----------------------------------------------------------------------------
 	// Check credentials and return JWT if they check out
-	r.HandleFunc("/users/", handleLogin).Methods("POST")
-	r.HandleFunc("/users/", handleGetUsers).Methods("GET")
+	r.Handle("/users/", handleLogin).Methods("POST")
+	r.Handle("/users/", jwtMiddleware.Handler(handleGetUsers)).Methods("GET")
 
 	//	Chats Controller
 	//----------------------------------------------------------------------------
 	// Get list of all chats
-	r.HandleFunc("/chats/", handleGetChats).Methods("GET")
+	r.Handle("/chats/", jwtMiddleware.Handler(handleGetChats)).Methods("GET")
 
 	// Get details for specific chat
-	r.HandleFunc("/chats/{id}/", handleGetChat).Methods("GET")
+	r.Handle("/chats/{id}/", jwtMiddleware.Handler(handleGetChat)).Methods("GET")
 
 	//	Message Controller
 	//----------------------------------------------------------------------------
 	// Get IDs of messages in channel
-	r.HandleFunc("/chats/{chatID}/msgs/", handleGetMsgs).Methods("GET")
+	r.Handle("/chats/{chatID}/msgs/", jwtMiddleware.Handler(handleGetMsgs)).Methods("GET")
 	// Post a new message to a channel
-	r.HandleFunc("/chats/{chatID}/msgs/", handlePostMsg).Methods("POST")
+	r.Handle("/chats/{chatID}/msgs/", jwtMiddleware.Handler(handlePostMsg)).Methods("POST")
 
-	log.Fatal(http.ListenAndServe(":8080", handlers.LoggingHandler(os.Stdout, r)))
+	http.ListenAndServe(":8080", handlers.LoggingHandler(os.Stdout, r))
 }

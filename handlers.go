@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
 )
-
-const myKey = "Password123"
 
 type myCustomClaims struct {
 	Username string `json:"username"`
@@ -23,7 +22,7 @@ func (c *credentials) IsValid() bool {
 	return c.Username != "" && c.Password != ""
 }
 
-func handleLogin(w http.ResponseWriter, r *http.Request) {
+var handleLogin = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	// Pick off username and password from request body
 	decoder := json.NewDecoder(r.Body)
 	var cred credentials
@@ -43,13 +42,13 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	claims := myCustomClaims{
 		cred.Username,
 		jwt.StandardClaims{
-			ExpiresAt: 15000,
+			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
 			Issuer:    "test",
 		},
 	}
 	// Create Token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	ss, err := token.SignedString([]byte(myKey))
+	token := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
+	ss, err := token.SignedString(myKey)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -57,35 +56,36 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	// Return JWT to user
 	w.Write([]byte(ss))
-}
-func handleGetUsers(w http.ResponseWriter, r *http.Request) {
+})
+
+var handleGetUsers = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	json, err := json.Marshal(users) // TODO: Fetch data from DB instead
 	if err != nil {
 		fmt.Println("Error marhsalling JSON")
 	}
 	w.Write(json)
-}
+})
 
-func handleGetChats(w http.ResponseWriter, r *http.Request) {
+var handleGetChats = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	json, err := json.Marshal(chats) // TODO: Fetch data from DB instead
 	if err != nil {
 		fmt.Println("Error marhsalling JSON")
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(json)
-}
+})
 
-func handleGetChat(w http.ResponseWriter, r *http.Request) {
+var handleGetChat = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 	// Get details for specific chat
-}
+})
 
-func handleGetMsgs(w http.ResponseWriter, r *http.Request) {
+var handleGetMsgs = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	// Get IDs of messages in channel
 	w.WriteHeader(http.StatusNotImplemented)
-}
+})
 
-func handlePostMsg(w http.ResponseWriter, r *http.Request) {
+var handlePostMsg = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	// Post a new message to a channel
 	w.WriteHeader(http.StatusNotImplemented)
-}
+})
