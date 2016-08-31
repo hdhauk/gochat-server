@@ -16,15 +16,12 @@ import (
 
 var myKey = []byte("Password123")
 
-func main() {
-	// Print welcome message and runtime
-	go printRunTime()
-
-	// Connect to database
+func initDatabase() (*gorm.DB, error) {
 	db, err := gorm.Open("sqlite3", "datastore.db")
 	defer db.Close()
 	if err != nil {
 		log.Fatal("Unable to access database")
+		return db, err
 	}
 
 	// Set up tables if none exists
@@ -40,6 +37,15 @@ func main() {
 		fmt.Println("No Messages-table found --> Creating new")
 		db.CreateTable(&Message{})
 	}
+	return db, nil
+}
+
+func main() {
+	// Print welcome message and runtime
+	go printRunTime()
+
+	// Set up database
+	initDatabase() //TODO: keep the database to make later calls to it..
 
 	// Set up muxing
 	r := mux.NewRouter().StrictSlash(false)
@@ -51,7 +57,7 @@ func main() {
 				return myKey, nil
 			},
 			SigningMethod: jwt.SigningMethodHS512,
-			Debug:         true,
+			Debug:         false,
 		})
 
 	//app := jwtMiddleware.Handler()

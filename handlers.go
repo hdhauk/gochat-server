@@ -18,32 +18,48 @@ type credentials struct {
 	Password string `json:"password"`
 }
 
-func (c *credentials) IsValid() bool {
+func (c *credentials) isValid() bool {
 	return c.Username != "" && c.Password != ""
 }
 
-var handleLogin = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// Pick off username and password from request body
+func extractCredentials(r *http.Request) (credentials, error) {
 	decoder := json.NewDecoder(r.Body)
-	var cred credentials
-	err := decoder.Decode(&cred)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Println("Error decoding JSON")
-		return
+	var ret credentials
+	err := decoder.Decode(&ret)
+	if err != nil && !ret.isValid() {
+		return ret, err
 	}
-	if !cred.IsValid() {
+	return ret, nil
+}
+
+func checkCredentials(c credentials) (bool, error) {
+	// FIXME
+	return true, nil
+}
+
+var handleLogin = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	// Get credentials
+	user, err := extractCredentials(r)
+	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	// Check if credentials is in database
+	login, err := checkCredentials(user)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !login {
+		w.WriteHeader(http.StatusUnauthorized)
+	}
 
 	// Create Claims
 	claims := myCustomClaims{
-		cred.Username,
+		user.Username,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
-			Issuer:    "test",
 		},
 	}
 	// Create Token
@@ -52,7 +68,6 @@ var handleLogin = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		fmt.Println(err)
 	}
-	// Add JWT to store in memory
 
 	// Return JWT to user
 	w.Write([]byte(ss))
