@@ -80,27 +80,3 @@ var handleGetUsers = http.HandlerFunc(func(w http.ResponseWriter, r *http.Reques
 	}
 	w.Write(json)
 })
-
-var handleGetChats = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	json, err := json.Marshal(chats) // TODO: Fetch data from DB instead
-	if err != nil {
-		fmt.Println("Error marhsalling JSON")
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(json)
-})
-
-var handleGetChat = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
-	// Get details for specific chat
-})
-
-var handleGetMsgs = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// Get IDs of messages in channel
-	w.WriteHeader(http.StatusNotImplemented)
-})
-
-var handlePostMsg = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// Post a new message to a channel
-	w.WriteHeader(http.StatusNotImplemented)
-})

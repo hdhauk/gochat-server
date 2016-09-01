@@ -60,8 +60,6 @@ func main() {
 			Debug:         false,
 		})
 
-	//app := jwtMiddleware.Handler()
-
 	//	Authentication Controller
 	//----------------------------------------------------------------------------
 	// Check credentials and return JWT if they check out
