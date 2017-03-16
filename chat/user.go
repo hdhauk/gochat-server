@@ -1,18 +1,25 @@
 package chat
 
 import (
-	"encoding/json"
-	"io"
+	"fmt"
 	"log"
 	"os"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 var logger = log.New(os.Stdout, "[CHAT]", log.Ltime|log.Lshortfile)
 
+// ReadWriteJSON defines the interface required for any connection to the  server.
+type ReadWriteJSON interface {
+	ReadJSON(interface{}) error
+	WriteJSON(interface{}) error
+}
+
 // User defines one chat user.
 type User struct {
 	ID          string
-	Conn        io.ReadWriter
+	Conn        ReadWriteJSON
 	DisplayName string
 	JWT         string
 	Rooms       map[string]*Room
@@ -20,9 +27,20 @@ type User struct {
 	closeCh chan struct{}
 }
 
+// NewUser returns a new user object.
+func NewUser(c ReadWriteJSON, name string) *User {
+	return &User{
+		ID:          uuid.NewV4().String(),
+		Conn:        c,
+		DisplayName: name,
+		Rooms:       make(map[string]*Room),
+		closeCh:     make(chan struct{}),
+	}
+}
+
 // Send transmits to the user
 func (u *User) Send(msg OutgoingMsg) error {
-	if err := json.NewEncoder(u.Conn).Encode(&msg); err != nil {
+	if err := u.Conn.WriteJSON(msg); err != nil {
 		return err
 	}
 	return nil
@@ -34,11 +52,12 @@ func (u *User) Listen() {
 	go func() {
 		var in IncomingMsg
 		for {
-			if err := json.NewDecoder(u.Conn).Decode(&in); err != nil {
+			if err := u.Conn.ReadJSON(&in); err != nil {
 				logger.Printf("[ERROR] Failed to decode incoming message: %s\n", err.Error())
 				// NOTE: Should we drop the connection
 				continue
 			}
+			fmt.Println(in)
 			in.SenderID = u.ID
 			rx <- in
 		}

@@ -1,6 +1,10 @@
 package chat
 
-import uuid "github.com/satori/go.uuid"
+import (
+	"fmt"
+
+	uuid "github.com/satori/go.uuid"
+)
 
 // Room ...
 type Room struct {
@@ -72,4 +76,21 @@ func (r *Room) Start() {
 			return
 		}
 	}
+}
+
+// AddMember adds user to the room, unless it's already a member.
+func (r *Room) AddMember(user *User) error {
+	_, added := r.Members[user.ID]
+	if added {
+		err := fmt.Errorf("user id already registered in room (id = %s )", user.ID)
+		logger.Printf("[INFO] Cannot add user: %s\n ", err.Error())
+		return err
+	}
+	logger.Printf("[INFO] User \"%s\" added to room \"%s\"\n ", user.DisplayName, r.Name)
+	r.Members[user.ID] = user
+
+	// Add room to user
+	user.Rooms[r.ID] = r
+
+	return nil
 }
