@@ -80,6 +80,25 @@ func TestAddSession(t *testing.T) {
 	time.Sleep(2 * time.Microsecond)
 	err = r.AddSession(id, s)
 	equals(t, chat.ErrRoomNotRunning, err)
+
+	// Remove session again.
+	err = r.RemoveSession("a")
+	equals(t, chat.ErrRoomNotRunning, err)
+
+	r.Start()
+	clean := make(map[chat.UserID]chat.Session)
+	oneUser := make(map[chat.UserID]chat.Session)
+	oneUser["a"] = s
+	equals(t, oneUser, r.ActiveUsers)
+
+	err = r.RemoveSession("a")
+	ok(t, err)
+	equals(t, clean, r.ActiveUsers)
+
+	// Remove unknown user
+	err = r.RemoveSession("q")
+	equals(t, chat.ErrUserNotFound, err)
+
 }
 
 func TestListAuthorizedUsers(t *testing.T) {
@@ -113,6 +132,34 @@ func TestListAuthorizedUsers(t *testing.T) {
 	time.Sleep(2 * time.Microsecond)
 	err = r.KickUser("b")
 	equals(t, chat.ErrRoomNotRunning, err)
+}
+
+func TestStopAndReset(t *testing.T) {
+	users := map[chat.UserID]chat.AuthLevel{"a": 1, "b": 1, "c": 1}
+	r, _ := chat.NewRoom(
+		users,
+		"TestRoom1",
+		"TestRoom1-Topic",
+	)
+	r.Start()
+	r.Start()
+
+	s := &mockSession{}
+	clean := make(map[chat.UserID]chat.Session)
+	r.AddSession("a", s)
+	oneUser := make(map[chat.UserID]chat.Session)
+	oneUser["a"] = s
+
+	r.Reset()
+	equals(t, clean, r.ActiveUsers)
+
+	r.Start()
+	r.AddSession("a", s)
+	equals(t, oneUser, r.ActiveUsers)
+
+	r.Stop()
+	r.Stop()
+
 }
 
 // Helper functions
