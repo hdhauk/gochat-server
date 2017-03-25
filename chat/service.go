@@ -90,4 +90,7 @@ var (
 	// ErrServiceNotRunning is returned whenever someone try to use the service
 	// without it running.
 	ErrServiceNotRunning = errors.New("service not running")
+	// ErrIllegalToken is returned whenever a user try to access any protected
+	// endpoints without a valid JWT.
+	ErrIllegalToken = errors.New("token not authorized")
 )
